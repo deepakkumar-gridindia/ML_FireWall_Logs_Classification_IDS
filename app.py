@@ -238,35 +238,16 @@ if uploaded_file is not None:
     # =====================================================
     # CONFUSION MATRIX
     # =====================================================
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+      st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
     
-    st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
+        cm = confusion_matrix(y_true, y_pred)
+        cm_df = pd.DataFrame(
+            cm,
+            index=label_encoder.classes_,
+            columns=label_encoder.classes_
+        )
     
-    cm = confusion_matrix(y_true, y_pred)
-    
-    # Smaller figure size
-    fig, ax = plt.subplots(figsize=(4, 3))
-    
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt="d",
-        cmap="Blues",
-        cbar=False,               # remove color bar (saves space)
-        xticklabels=label_encoder.classes_,
-        yticklabels=label_encoder.classes_,
-        annot_kws={"size": 9},    # smaller numbers
-        ax=ax
-    )
-    
-    ax.set_xlabel("Predicted", fontsize=9)
-    ax.set_ylabel("Actual", fontsize=9)
-    ax.tick_params(axis='both', labelsize=8)
-    
-    plt.tight_layout()
-    
-    st.pyplot(fig)
+        st.dataframe(cm_df)
 
 
     # =====================================================
