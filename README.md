@@ -1,6 +1,17 @@
 # ML_FireWall_Logs_Classification_IDS
 Intrusion Detection System of Firewall Logs Using Machine Learning Models 
 
+ML_FireWall_Logs_Classification_IDS
+Intrusion Detection System of Firewall Logs Using Machine Learning Models 
+Problem Statement :-> Assignment Details	1
+Dataset Description :->	2
+🤖 Project: Intrusion Detection System (IDS)	2
+Model Performance Comparison Table with the evaluation metrics	3
+Observations on Model Performance	3
+Streamlit App Link and GitHub Repository Link	4
+BITS Virtual Lab Screenshot	4
+
+
 I.	Problem Statement :-> Assignment Details
 Step 1: Dataset choice
 Choose ONE classification dataset of your choice from any public repository - Kaggle or UCI. It may be a binary classification problem or a multi-class classification problem.
@@ -66,9 +77,12 @@ VI.	Streamlit App Link and GitHub Repository Link
 🔗 Streamlit Application (Live Deployment):
 https://mlfirewalllogsclassificationids-uchwn3eylxdvkjaftisrzq.streamlit.app/
 💻 GitHub Repository (Source Code):
-https://github.com/deepakkumar-gridindia/ML_FireWall_Logs_MultiClass_Classification.git
+https://github.com/deepakkumar-gridindia/ML_FireWall_Logs_Classification_IDS.git
+
 
 
 VII.	BITS Virtual Lab Screenshot
-<img width="468" height="655" alt="image" src="https://github.com/user-attachments/assets/279b6fea-e5e4-4efa-ac69-35a8f403687e" />
+ 
+<img width="451" height="675" alt="image" src="https://github.com/user-attachments/assets/7207ec6b-b6d5-4b2b-a4c7-99057fed2495" />
+
 
