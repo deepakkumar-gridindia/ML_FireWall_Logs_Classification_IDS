@@ -219,21 +219,27 @@ if uploaded_file is not None:
     y_prob = model.predict_proba(X_test)
 
     # =====================================================
-    # EVALUATION METRICS
+    # EVALUATION METRICS (OFFICIAL METRICS ONLY)
     # =====================================================
     st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
     
-    metrics_col1, metrics_col2, metrics_col3 = st.columns(3)
-    
-    metrics_col1.metric("Accuracy", f"{accuracy_score(y_true, y_pred):.4f}")
-    metrics_col1.metric("Precision", f"{precision_score(y_true, y_pred, average='weighted'):.4f}")
-    
-    metrics_col2.metric("Recall", f"{recall_score(y_true, y_pred, average='weighted'):.4f}")
-    metrics_col2.metric("F1 Score", f"{f1_score(y_true, y_pred, average='weighted'):.4f}")
-    
-    metrics_col3.metric("AUC", f"{roc_auc_score(y_true, y_prob, multi_class='ovr', average='weighted'):.4f}")
-    metrics_col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
+    accuracy_val = accuracy_score(y_true, y_pred)
+    precision_val = precision_score(y_true, y_pred, average="weighted", zero_division=0)
+    recall_val = recall_score(y_true, y_pred, average="weighted", zero_division=0)
+    f1_val = f1_score(y_true, y_pred, average="weighted", zero_division=0)
+    auc_val = roc_auc_score(y_true, y_prob, multi_class="ovr", average="weighted")
+    mcc_val = matthews_corrcoef(y_true, y_pred)
 
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Accuracy", f"{accuracy_val:.4f}")
+    col1.metric("Precision", f"{precision_val:.4f}")
+
+    col2.metric("Recall", f"{recall_val:.4f}")
+    col2.metric("F1 Score", f"{f1_val:.4f}")
+
+    col3.metric("AUC", f"{auc_val:.4f}")
+    col3.metric("MCC", f"{mcc_val:.4f}")
 
     # =====================================================
     # CONFUSION MATRIX
@@ -247,40 +253,40 @@ if uploaded_file is not None:
         columns=label_encoder.classes_
     )
 
-    st.dataframe(cm_df)
-
+    st.dataframe(cm_df, use_container_width=True)
 
     # =====================================================
-    # CLASSIFICATION REPORT
+    # CLASSIFICATION REPORT (DETAILED ANALYSIS)
     # =====================================================
-    st.markdown(f"## 📄 Classification Report – {selected_model_name}")
-    
-    # Generate classification report dictionary
+    st.markdown(f"## 📄 Detailed Classification Report – {selected_model_name}")
+
     report_dict = classification_report(
         y_true,
         y_pred,
         output_dict=True,
         zero_division=0
     )
-    
-    # Convert to DataFrame
+
     report_df = pd.DataFrame(report_dict).transpose()
-    
-    # Replace numeric class labels (0,1,2,3) with original names
+
+    # Replace numeric labels with actual class names
     class_mapping = {str(i): label for i, label in enumerate(label_encoder.classes_)}
     report_df.rename(index=class_mapping, inplace=True)
-    
-    # Reorder columns for better display
-    desired_columns = ["precision", "recall", "f1-score", "support"]
-    report_df = report_df[desired_columns]
-    
-    # Round values
-    report_df = report_df.round(4)
-    
-    # Display in Streamlit
-    st.dataframe(report_df, use_container_width=True)
 
+    # Separate Class-wise performance
+    st.markdown("### 🔹 Class-wise Performance")
+    class_df = report_df.loc[label_encoder.classes_, ["precision", "recall", "f1-score", "support"]]
+    st.dataframe(class_df.round(4), use_container_width=True)
 
+    # Show Macro Average
+    st.markdown("### 🔹 Macro Average (Equal importance to all classes)")
+    macro_df = report_df.loc[["macro avg"], ["precision", "recall", "f1-score"]]
+    st.dataframe(macro_df.round(4), use_container_width=True)
 
+    # Show Weighted Average
+    st.markdown("### 🔹 Weighted Average (Weighted by class frequency)")
+    weighted_df = report_df.loc[["weighted avg"], ["precision", "recall", "f1-score"]]
+    st.dataframe(weighted_df.round(4), use_container_width=True)
 
     st.success("✅ Evaluation Completed Successfully")
+
