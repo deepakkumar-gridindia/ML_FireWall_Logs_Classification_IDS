@@ -222,29 +222,49 @@ if uploaded_file is not None:
     # EVALUATION METRICS
     # =====================================================
     st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
+    
+    metrics_col1, metrics_col2, metrics_col3 = st.columns(3)
+    
+    metrics_col1.metric("Accuracy", f"{accuracy_score(y_true, y_pred):.4f}")
+    metrics_col1.metric("Precision", f"{precision_score(y_true, y_pred, average='weighted'):.4f}")
+    
+    metrics_col2.metric("Recall", f"{recall_score(y_true, y_pred, average='weighted'):.4f}")
+    metrics_col2.metric("F1 Score", f"{f1_score(y_true, y_pred, average='weighted'):.4f}")
+    
+    metrics_col3.metric("AUC", f"{roc_auc_score(y_true, y_prob, multi_class='ovr', average='weighted'):.4f}")
+    metrics_col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
 
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric("Accuracy", f"{accuracy_score(y_true, y_pred):.4f}")
-    col1.metric("Precision", f"{precision_score(y_true, y_pred, average='weighted'):.4f}")
-    col2.metric("Recall", f"{recall_score(y_true, y_pred, average='weighted'):.4f}")
-    col2.metric("F1 Score", f"{f1_score(y_true, y_pred, average='weighted'):.4f}")
-    col3.metric("AUC", f"{roc_auc_score(y_true, y_prob, multi_class='ovr', average='weighted'):.4f}")
-    col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
 
     # =====================================================
     # CONFUSION MATRIX
     # =====================================================
+    # st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
+
+    # cm = confusion_matrix(y_true, y_pred)
+    # cm_df = pd.DataFrame(
+    #     cm,
+    #     index=label_encoder.classes_,
+    #     columns=label_encoder.classes_
+    # )
+
+    # st.dataframe(cm_df)
+
+
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    
     st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
-
+    
     cm = confusion_matrix(y_true, y_pred)
-    cm_df = pd.DataFrame(
-        cm,
-        index=label_encoder.classes_,
-        columns=label_encoder.classes_
-    )
-
-    st.dataframe(cm_df)
+    
+    fig, ax = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt="d",
+                xticklabels=label_encoder.classes_,
+                yticklabels=label_encoder.classes_)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    
+    st.pyplot(fig)
 
     # =====================================================
     # CLASSIFICATION REPORT
