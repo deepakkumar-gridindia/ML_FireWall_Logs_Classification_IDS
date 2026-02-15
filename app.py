@@ -65,9 +65,11 @@ if page == "🏠 Home":
     for firewall traffic classification. The system classifies network traffic actions
     such as allow, deny, drop, and reset-both.
 
-    It is developed by Deepak Kumar , M.Tech Student of BITS Pliani AI ML Course , 
-    BITS Id:- 2025aa05261
-    2025aa05261@wilp.bits-pilani.ac.in
+    It is developed by Deepak Kumar , M.Tech Student of BITS Pliani AI ML Course.
+    BITS Id:- 2025aa05261.
+    Phone :- 9741046210
+    email : - 2025aa05261@wilp.bits-pilani.ac.in 
+        :- drsdeepakkwr@gmail.com
     """)
 
     # -------------------------------
