@@ -192,7 +192,7 @@ if page == "🏠 Home":
 # TAB 2 — Model Comparison
 # =========================================================
 
- elif page == "📊 Model Comparison":
+  elif page == "📊 Model Comparison":
 
     st.markdown("## 📊 Model Comparison")
 
