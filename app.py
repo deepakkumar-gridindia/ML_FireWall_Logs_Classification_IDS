@@ -55,16 +55,6 @@ if page == "🏠 Home":
     The system uses supervised learning models to automatically classify 
     network traffic actions such as allow, deny, drop, and reset-both.
     """)
-# with tab1:
-
-#     st.markdown("""
-#     ### 🔍 About ML-Based IDS
-
-#     This application demonstrates a Machine Learning-based Intrusion Detection System (IDS) 
-#     for firewall traffic classification.  
-#     The system uses supervised learning models to automatically classify 
-#     network traffic actions such as allow, deny, drop, and reset-both.
-#     """)
 
     # -------------------------------
     # DOWNLOAD SECTION
@@ -198,11 +188,72 @@ if page == "🏠 Home":
 
         st.success("✅ Evaluation Completed Successfully")
 
+# =========================================================
+# TAB 2 — Model Comparison
+# =========================================================
+
+ elif page == "📊 Model Comparison":
+
+    st.markdown("## 📊 Model Comparison")
+
+    comparison_data = {
+        "Model": [
+            "Logistic Regression",
+            "Decision Tree",
+            "kNN",
+            "Naive Bayes",
+            "Random Forest",
+            "XGBoost"
+        ],
+        "Accuracy": [0.9829, 0.9978, 0.9971, 0.6918, 0.9977, 0.9982],
+        "F1 Score": [0.9826, 0.9977, 0.9967, 0.7752, 0.9976, 0.9980]
+    }
+
+    comp_df = pd.DataFrame(comparison_data)
+
+    st.bar_chart(comp_df.set_index("Model"))
 
 # =========================================================
-# TAB 2 — DATASET INFORMATION
+# TAB 3 — ROC Curve"
 # =========================================================
-with tab2:
+
+ elif page == "📈 ROC Curve":
+
+    st.markdown("## 📈 ROC Curve Analysis")
+
+    from sklearn.metrics import roc_curve
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    if uploaded_file is not None:
+
+        fig, ax = plt.subplots(figsize=(6,4))
+
+        for model_name, file_name in model_files.items():
+            model = joblib.load(file_name)
+
+            y_prob_all = model.predict_proba(X_test)
+            y_score = y_prob_all[:, 1] if y_prob_all.shape[1] > 1 else y_prob_all
+
+            fpr, tpr, _ = roc_curve(y_true, y_score[:, 0])
+            ax.plot(fpr, tpr, label=model_name)
+
+        ax.plot([0,1],[0,1],'k--')
+        ax.set_xlabel("False Positive Rate")
+        ax.set_ylabel("True Positive Rate")
+        ax.set_title("ROC Curve Comparison")
+        ax.legend(fontsize=7)
+
+        st.pyplot(fig)
+
+    else:
+        st.warning("Upload dataset in Home tab first.")
+
+# =========================================================
+# TAB  — Dataset Information"
+# =========================================================
+
+elif page == "📁 Dataset Information":
 
     st.markdown("## 📘 Internet Firewall Data — Dataset Information")
 
@@ -226,9 +277,9 @@ with tab2:
     """)
 
 # =========================================================
-# TAB 3 — ML MODELS
+# TAB — ML MODELS
 # =========================================================
-with tab3:
+elif page == "🤖 ML Models":
 
     st.markdown("## 🤖 Machine Learning Models Used")
 
