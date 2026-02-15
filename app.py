@@ -110,6 +110,9 @@ if page == "🏠 Home":
             st.error("Dataset must contain 'Action' column.")
             st.stop()
 
+        st.session_state["test_data"] = test_data
+
+        test_data = st.session_state["test_data"]
         y_true = test_data["Action"]
         X_test = test_data.drop(columns=["Action"])
 
@@ -200,36 +203,40 @@ elif page == "📈 ROC Curve":
 
     st.markdown("## 📈 ROC Curve Analysis")
 
-    uploaded_file = st.file_uploader("Upload dataset for ROC analysis", type=["csv"])
+    if "test_data" not in st.session_state:
+        st.warning("⚠️ Please upload dataset in Home tab first.")
+        st.stop()
 
-    if uploaded_file is not None:
+    test_data = st.session_state["test_data"]
 
-        test_data = pd.read_csv(uploaded_file)
+    y_true = test_data["Action"]
+    X_test = test_data.drop(columns=["Action"])
 
-        if "Action" not in test_data.columns:
-            st.error("Dataset must contain 'Action'")
-            st.stop()
+    from sklearn.preprocessing import label_binarize
+    import numpy as np
 
-        y_true = test_data["Action"]
-        X_test = test_data.drop(columns=["Action"])
+    classes = label_encoder.classes_
+    y_true_bin = label_binarize(y_true, classes=classes)
 
-        fig, ax = plt.subplots(figsize=(6,4))
+    fig, ax = plt.subplots(figsize=(6,4))
 
-        for model_name, file_name in model_files.items():
+    for model_name, file_name in model_files.items():
 
-            model = joblib.load(file_name)
-            y_prob = model.predict_proba(X_test)
+        model = joblib.load(file_name)
+        y_prob = model.predict_proba(X_test)
 
-            fpr, tpr, _ = roc_curve(y_true, y_prob[:, 0])
-            ax.plot(fpr, tpr, label=model_name)
+        for i in range(len(classes)):
+            fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_prob[:, i])
+            ax.plot(fpr, tpr, label=f"{model_name} - {classes[i]}")
 
-        ax.plot([0,1],[0,1],'k--')
-        ax.set_xlabel("False Positive Rate")
-        ax.set_ylabel("True Positive Rate")
-        ax.set_title("ROC Curve Comparison")
-        ax.legend(fontsize=8)
+    ax.plot([0,1],[0,1],'k--')
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title("Multiclass ROC Curve (One-vs-Rest)")
+    ax.legend(fontsize=6)
 
-        st.pyplot(fig)
+    st.pyplot(fig)
+
 
 # =========================================================
 # DATASET INFORMATION PAGE
