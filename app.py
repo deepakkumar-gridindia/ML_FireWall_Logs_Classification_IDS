@@ -99,9 +99,9 @@ if page == "🏠 Home":
 
     model = joblib.load(model_files[selected_model_name])
 
-    # -------------------------------
-    # Prediction
-    # -------------------------------
+    # =====================================================
+    # 1️⃣ IF NEW FILE IS UPLOADED → RUN MODEL & STORE RESULTS
+    # =====================================================
     if uploaded_file is not None:
 
         test_data = pd.read_csv(uploaded_file)
@@ -110,14 +110,28 @@ if page == "🏠 Home":
             st.error("Dataset must contain 'Action' column.")
             st.stop()
 
-        st.session_state["test_data"] = test_data
-
-        test_data = st.session_state["test_data"]
         y_true = test_data["Action"]
         X_test = test_data.drop(columns=["Action"])
 
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)
+
+        # ✅ Store everything in session_state
+        st.session_state["test_data"] = test_data
+        st.session_state["y_true"] = y_true
+        st.session_state["y_pred"] = y_pred
+        st.session_state["y_prob"] = y_prob
+        st.session_state["selected_model"] = selected_model_name
+
+    # =====================================================
+    # 2️⃣ IF RESULTS ALREADY EXIST → DISPLAY THEM
+    # =====================================================
+    if "y_true" in st.session_state:
+
+        y_true = st.session_state["y_true"]
+        y_pred = st.session_state["y_pred"]
+        y_prob = st.session_state["y_prob"]
+        selected_model_name = st.session_state["selected_model"]
 
         # -------------------------------
         # Evaluation Metrics
@@ -169,6 +183,9 @@ if page == "🏠 Home":
         class_df = report_df.loc[label_encoder.classes_, ["precision", "recall", "f1-score", "support"]]
 
         st.dataframe(class_df.round(4), use_container_width=True)
+
+        st.success("✅ Results Persist Across Tabs")
+
 
         st.success("✅ Evaluation Completed Successfully")
 
