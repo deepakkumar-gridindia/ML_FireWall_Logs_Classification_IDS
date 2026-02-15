@@ -59,17 +59,17 @@ label_encoder = joblib.load("label_encoder.pkl")
 if page == "🏠 Home":
 
     st.markdown("""
-    ### 🔍 About ML-Based IDS
+    ### 🔍 ML-Based Intrusion Detection System (IDS)
     
-    This application demonstrates a Machine Learning-based Intrusion Detection System (IDS)
-    for firewall traffic classification. The system classifies network traffic actions
-    such as allow, deny, drop, and reset-both.
-
-    It is developed by Deepak Kumar , M.Tech Student of BITS Pliani AI ML Course.
-    BITS Id:- 2025aa05261.
-    Phone :- 9741046210
-    email : - 2025aa05261@wilp.bits-pilani.ac.in 
-        :- drsdeepakkwr@gmail.com
+    This application demonstrates a Machine Learning-based IDS for firewall traffic classification.  
+    It classifies network actions as **allow, deny, drop, reset-both** using supervised ML models.
+    
+    **Developed by:** Deepak Kumar  
+    M.Tech (AI & ML), BITS Pilani (WILP)  
+    BITS ID: 2025AA05261  
+    
+    📞 9741046210  
+    📧 2025aa05261@wilp.bits-pilani.ac.in | drsdeepakkwr@gmail.com
     """)
 
     # -------------------------------
