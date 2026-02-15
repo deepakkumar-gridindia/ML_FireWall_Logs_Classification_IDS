@@ -238,18 +238,6 @@ if uploaded_file is not None:
     # =====================================================
     # CONFUSION MATRIX
     # =====================================================
-    st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
-
-    cm = confusion_matrix(y_true, y_pred)
-    cm_df = pd.DataFrame(
-        cm,
-        index=label_encoder.classes_,
-        columns=label_encoder.classes_
-    )
-
-    st.dataframe(cm_df)
-
-
     import seaborn as sns
     import matplotlib.pyplot as plt
     
