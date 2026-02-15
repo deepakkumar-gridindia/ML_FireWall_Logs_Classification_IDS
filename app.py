@@ -23,21 +23,48 @@ st.title("🚀 Machine Learning Based Intrusion Detection System (Firewall)")
 # =========================================================
 # CREATE TABS
 # =========================================================
-tab1, tab2, tab3 = st.tabs(["🏠 Home", "📁 Dataset Information", "🤖 ML Models"])
+# tab1, tab2, tab3 = st.tabs(["🏠 Home", "📁 Dataset Information", "🤖 ML Models"])
+
+# =========================================================
+# SIDEBAR NAVIGATION
+# =========================================================
+st.sidebar.title("🔎 Navigation")
+
+page = st.sidebar.radio(
+    "Go to",
+    [
+        "🏠 Home",
+        "📊 Model Comparison",
+        "📈 ROC Curve",
+        "📁 Dataset Information",
+        "🤖 ML Models"
+    ]
+)
 
 # =========================================================
 # TAB 1 — HOME
 # =========================================================
-with tab1:
+
+if page == "🏠 Home":
 
     st.markdown("""
     ### 🔍 About ML-Based IDS
 
-    This application demonstrates a Machine Learning-based Intrusion Detection System (IDS) 
-    for firewall traffic classification.  
+    This application demonstrates a Machine Learning-based Intrusion Detection System (IDS)
+    for firewall traffic classification.
     The system uses supervised learning models to automatically classify 
     network traffic actions such as allow, deny, drop, and reset-both.
     """)
+# with tab1:
+
+#     st.markdown("""
+#     ### 🔍 About ML-Based IDS
+
+#     This application demonstrates a Machine Learning-based Intrusion Detection System (IDS) 
+#     for firewall traffic classification.  
+#     The system uses supervised learning models to automatically classify 
+#     network traffic actions such as allow, deny, drop, and reset-both.
+#     """)
 
     # -------------------------------
     # DOWNLOAD SECTION
