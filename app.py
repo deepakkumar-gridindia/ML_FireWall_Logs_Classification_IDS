@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import requests
 from sklearn.metrics import (
     accuracy_score,
     roc_auc_score,
@@ -12,20 +13,165 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# ---------------------------------
+# =========================================================
 # PAGE CONFIG
-# ---------------------------------
-st.set_page_config(page_title="ML Deployment App", layout="wide")
-st.title("🚀 Multi-Class Machine Learning Model Deployment for Intrusion Detetction System of Firewall")
+# =========================================================
+st.set_page_config(page_title="ML-Based IDS System", layout="wide")
 
-# ---------------------------------
-# LOAD LABEL ENCODER
-# ---------------------------------
-label_encoder = joblib.load("label_encoder.pkl")
+st.title("🚀 Machine Learning Based Intrusion Detection System (Firewall)")
 
-# ---------------------------------
-# MODEL FILE MAP
-# ---------------------------------
+# =========================================================
+# SYSTEM DESCRIPTION
+# =========================================================
+st.markdown("""
+## 📘 Internet Firewall Data — IDS Machine Learning Model
+
+The **Internet Firewall Data** is a publicly available dataset from the  
+**UCI Machine Learning Repository (Dataset ID: 542)**.  
+It contains real network traffic records captured from a university firewall 
+and is widely used for classification tasks in network security and intrusion detection research.
+
+### 📊 Dataset Summary
+- **Instances:** 65,532  
+- **Features:** 12  
+- **Task:** Multiclass Classification  
+- **Class Labels:** allow, deny, drop, reset-both  
+  (These represent the action taken by the firewall on a given traffic session.)
+
+---
+
+## 📊 Feature Overview
+
+Each row in the dataset represents one firewall log entry.  
+The following 12 attributes are included:
+
+| Feature | Description |
+|----------|-------------|
+| Source Port | Port number initiating the connection |
+| Destination Port | Receiving port number |
+| NAT Source Port | Source port after NAT translation |
+| NAT Destination Port | Destination port after NAT translation |
+| Action | Target label (firewall decision) |
+| Bytes | Total bytes transferred |
+| Bytes Sent | Bytes sent by the source |
+| Bytes Received | Bytes received by the destination |
+| Packets | Total number of packets |
+| Elapsed Time (sec) | Duration of the session |
+| pkts_sent | Packets sent by the source |
+| pkts_received | Packets received by the destination |
+
+*(Attribute list adapted from the dataset documentation.)*
+
+There are **no missing values** in the dataset.  
+The class label **'Action'** is used as the target variable in supervised learning tasks.
+
+---
+
+## 🤖 Project: Intrusion Detection System (IDS)
+
+This repository implements a **Machine Learning-based Intrusion Detection System (IDS)** 
+trained on the Internet Firewall Data.
+
+The objective of this IDS is to automatically classify firewall network traffic 
+as benign or potentially malicious based on historical firewall actions.
+
+---
+
+## 📚 Citation
+
+If you use this dataset or code in published work, please cite:
+
+Internet Firewall Data [Dataset]. (2019).  
+UCI Machine Learning Repository.  
+https://doi.org/10.24432/C5131M
+""")
+
+# =========================================================
+# MODEL DESCRIPTIONS
+# =========================================================
+st.markdown("### 🤖 Machine Learning Models Used")
+
+st.markdown("""
+**1. Logistic Regression**  
+A linear classification model that estimates class probabilities using the logistic function.  
+It performs well when classes are linearly separable and serves as a strong baseline model.
+
+**2. Decision Tree Classifier**  
+A tree-based model that splits data using decision rules derived from features.  
+It captures non-linear patterns but may overfit without proper control.
+
+**3. K-Nearest Neighbor (kNN)**  
+A distance-based algorithm that classifies samples based on the majority class among nearest neighbors.  
+It works well when similar traffic behaviors cluster together.
+
+**4. Naive Bayes (Gaussian)**  
+A probabilistic classifier based on Bayes’ theorem with independence assumptions.  
+It is computationally efficient but may struggle when feature dependencies exist.
+
+**5. Random Forest (Ensemble)**  
+An ensemble method that combines multiple decision trees to improve generalization.  
+It reduces overfitting and handles complex traffic patterns effectively.
+
+**6. XGBoost (Ensemble)**  
+A gradient boosting algorithm that builds trees sequentially to minimize prediction errors.  
+It provides high accuracy and strong performance on structured firewall datasets.
+""")
+
+# =========================================================
+# DATASET DESCRIPTION
+# =========================================================
+st.markdown("### 📁 Dataset Description")
+
+st.markdown("""
+The dataset used in this IDS system consists of firewall network traffic logs.  
+It contains multiple numerical and categorical features such as source port, 
+destination port, bytes transferred, packets, and elapsed time.
+
+The target variable **'Action'** represents the classified firewall action for 
+each network event. The dataset has been preprocessed and split into training 
+and testing subsets before model deployment.
+""")
+
+# =========================================================
+# DOWNLOAD TEST DATASET
+# =========================================================
+st.markdown("### ⬇️ Download Test Dataset")
+
+GITHUB_TEST_DATA_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/test_dataset.csv"
+
+st.markdown("""
+Click below to download the prepared test dataset.  
+You may upload the same dataset or a new dataset in the same format.
+""")
+
+if st.button("Download Test Dataset"):
+    try:
+        response = requests.get(GITHUB_TEST_DATA_URL)
+        st.download_button(
+            label="Click to Download",
+            data=response.content,
+            file_name="test_dataset.csv",
+            mime="text/csv"
+        )
+    except:
+        st.error("Unable to fetch dataset from GitHub. Check the link.")
+
+# =========================================================
+# UPLOAD SECTION
+# =========================================================
+st.markdown("""
+### 📤 Upload Test Dataset
+
+Please download the test dataset above and upload it below.  
+You may also upload a new dataset with the same feature structure.  
+The ML-Based IDS system will evaluate the uploaded dataset and display results.
+""")
+
+uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+
+# =========================================================
+# LOAD MODELS
+# =========================================================
 model_files = {
     "Logistic Regression": "logistic_model.pkl",
     "Decision Tree Classifier": "decision_tree.pkl",
@@ -35,43 +181,41 @@ model_files = {
     "XGBoost (Ensemble)": "xgboost.pkl"
 }
 
-# ---------------------------------
-# MODEL SELECTION DROPDOWN (1 MARK)
-# ---------------------------------
+label_encoder = joblib.load("label_encoder.pkl")
+
+# =========================================================
+# MODEL SELECTION
+# =========================================================
+st.markdown("### ⚙️ Select Model")
+
 selected_model_name = st.selectbox(
-    "Select Model",
+    "Choose a Model for Evaluation",
     list(model_files.keys())
 )
 
 model = joblib.load(model_files[selected_model_name])
 
-# ---------------------------------
-# UPLOAD TEST DATA
-# ---------------------------------
-uploaded_file = st.file_uploader("Upload Test Dataset (CSV)", type=["csv"])
-
+# =========================================================
+# PREDICTION & RESULTS
+# =========================================================
 if uploaded_file is not None:
 
     test_data = pd.read_csv(uploaded_file)
 
-    st.subheader("📄 Uploaded Dataset Preview")
-    st.dataframe(test_data.head())
-
-    if "Action" in test_data.columns:
-        y_true = test_data["Action"]
-        X_test = test_data.drop(columns=["Action"])
-    else:
-        st.error("Test dataset must contain 'Action' column.")
+    if "Action" not in test_data.columns:
+        st.error("Dataset must contain 'Action' column for evaluation.")
         st.stop()
 
-    # Predict
+    y_true = test_data["Action"]
+    X_test = test_data.drop(columns=["Action"])
+
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)
 
-    # ---------------------------------
-    # DISPLAY EVALUATION METRICS (1 MARK)
-    # ---------------------------------
-    st.subheader("📊 Evaluation Metrics")
+    # =====================================================
+    # EVALUATION METRICS
+    # =====================================================
+    st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
 
     col1, col2, col3 = st.columns(3)
 
@@ -82,10 +226,10 @@ if uploaded_file is not None:
     col3.metric("AUC", f"{roc_auc_score(y_true, y_prob, multi_class='ovr', average='weighted'):.4f}")
     col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
 
-    # ---------------------------------
-    # CONFUSION MATRIX (1 MARK)
-    # ---------------------------------
-    st.subheader("🔢 Confusion Matrix")
+    # =====================================================
+    # CONFUSION MATRIX
+    # =====================================================
+    st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
 
     cm = confusion_matrix(y_true, y_pred)
     cm_df = pd.DataFrame(
@@ -96,10 +240,10 @@ if uploaded_file is not None:
 
     st.dataframe(cm_df)
 
-    # ---------------------------------
-    # CLASSIFICATION REPORT (1 MARK)
-    # ---------------------------------
-    st.subheader("📄 Classification Report")
+    # =====================================================
+    # CLASSIFICATION REPORT
+    # =====================================================
+    st.markdown(f"## 📄 Classification Report – {selected_model_name}")
 
     report_df = pd.DataFrame(
         classification_report(
