@@ -245,14 +245,29 @@ if uploaded_file is not None:
     
     cm = confusion_matrix(y_true, y_pred)
     
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt="d",
-                xticklabels=label_encoder.classes_,
-                yticklabels=label_encoder.classes_)
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
+    # Smaller figure size
+    fig, ax = plt.subplots(figsize=(4, 3))
+    
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        cbar=False,               # remove color bar (saves space)
+        xticklabels=label_encoder.classes_,
+        yticklabels=label_encoder.classes_,
+        annot_kws={"size": 9},    # smaller numbers
+        ax=ax
+    )
+    
+    ax.set_xlabel("Predicted", fontsize=9)
+    ax.set_ylabel("Actual", fontsize=9)
+    ax.tick_params(axis='both', labelsize=8)
+    
+    plt.tight_layout()
     
     st.pyplot(fig)
+
 
     # =====================================================
     # CLASSIFICATION REPORT
