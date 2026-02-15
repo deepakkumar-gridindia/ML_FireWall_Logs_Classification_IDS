@@ -92,6 +92,9 @@ with tab1:
     # -------------------------------
     # PREDICTION & RESULTS
     # -------------------------------
+    # -------------------------------
+    # PREDICTION & RESULTS
+    # -------------------------------
     if uploaded_file is not None:
 
         try:
@@ -109,80 +112,65 @@ with tab1:
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)
 
-        # -------------------------------
+        # =====================================================
         # EVALUATION METRICS
-        # -------------------------------
-    # =====================================================
-    # EVALUATION METRICS (OFFICIAL METRICS ONLY)
-    # =====================================================
-    st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
-    
-    accuracy_val = accuracy_score(y_true, y_pred)
-    precision_val = precision_score(y_true, y_pred, average="weighted", zero_division=0)
-    recall_val = recall_score(y_true, y_pred, average="weighted", zero_division=0)
-    f1_val = f1_score(y_true, y_pred, average="weighted", zero_division=0)
-    auc_val = roc_auc_score(y_true, y_prob, multi_class="ovr", average="weighted")
-    mcc_val = matthews_corrcoef(y_true, y_pred)
+        # =====================================================
+        st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
+        
+        accuracy_val = accuracy_score(y_true, y_pred)
+        precision_val = precision_score(y_true, y_pred, average="weighted", zero_division=0)
+        recall_val = recall_score(y_true, y_pred, average="weighted", zero_division=0)
+        f1_val = f1_score(y_true, y_pred, average="weighted", zero_division=0)
+        auc_val = roc_auc_score(y_true, y_prob, multi_class="ovr", average="weighted")
+        mcc_val = matthews_corrcoef(y_true, y_pred)
 
-    col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-    col1.metric("Accuracy", f"{accuracy_val:.4f}")
-    col1.metric("Precision", f"{precision_val:.4f}")
+        col1.metric("Accuracy", f"{accuracy_val:.4f}")
+        col1.metric("Precision", f"{precision_val:.4f}")
 
-    col2.metric("Recall", f"{recall_val:.4f}")
-    col2.metric("F1 Score", f"{f1_val:.4f}")
+        col2.metric("Recall", f"{recall_val:.4f}")
+        col2.metric("F1 Score", f"{f1_val:.4f}")
 
-    col3.metric("AUC", f"{auc_val:.4f}")
-    col3.metric("MCC", f"{mcc_val:.4f}")
+        col3.metric("AUC", f"{auc_val:.4f}")
+        col3.metric("MCC", f"{mcc_val:.4f}")
 
-    # =====================================================
-    # CONFUSION MATRIX
-    # =====================================================
-    st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
-    
-    cm = confusion_matrix(y_true, y_pred)
-    cm_df = pd.DataFrame(
-        cm,
-        index=label_encoder.classes_,
-        columns=label_encoder.classes_
-    )
+        # =====================================================
+        # CONFUSION MATRIX
+        # =====================================================
+        st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
+        
+        cm = confusion_matrix(y_true, y_pred)
+        cm_df = pd.DataFrame(
+            cm,
+            index=label_encoder.classes_,
+            columns=label_encoder.classes_
+        )
 
-    st.dataframe(cm_df, use_container_width=True)
+        st.dataframe(cm_df, use_container_width=True)
 
-    # =====================================================
-    # CLASSIFICATION REPORT (DETAILED ANALYSIS)
-    # =====================================================
-    st.markdown(f"## 📄 Detailed Classification Report – {selected_model_name}")
+        # =====================================================
+        # CLASSIFICATION REPORT
+        # =====================================================
+        st.markdown(f"## 📄 Detailed Classification Report – {selected_model_name}")
 
-    report_dict = classification_report(
-        y_true,
-        y_pred,
-        output_dict=True,
-        zero_division=0
-    )
+        report_dict = classification_report(
+            y_true,
+            y_pred,
+            output_dict=True,
+            zero_division=0
+        )
 
-    report_df = pd.DataFrame(report_dict).transpose()
+        report_df = pd.DataFrame(report_dict).transpose()
 
-    # Replace numeric labels with actual class names
-    class_mapping = {str(i): label for i, label in enumerate(label_encoder.classes_)}
-    report_df.rename(index=class_mapping, inplace=True)
+        class_mapping = {str(i): label for i, label in enumerate(label_encoder.classes_)}
+        report_df.rename(index=class_mapping, inplace=True)
 
-    # Separate Class-wise performance
-    st.markdown("### 🔹 Class-wise Performance")
-    class_df = report_df.loc[label_encoder.classes_, ["precision", "recall", "f1-score", "support"]]
-    st.dataframe(class_df.round(4), use_container_width=True)
+        class_df = report_df.loc[label_encoder.classes_, ["precision", "recall", "f1-score", "support"]]
+        st.dataframe(class_df.round(4), use_container_width=True)
 
-    # Show Macro Average
-    st.markdown("### 🔹 Macro Average (Equal importance to all classes)")
-    macro_df = report_df.loc[["macro avg"], ["precision", "recall", "f1-score"]]
-    st.dataframe(macro_df.round(4), use_container_width=True)
+        st.success("✅ Evaluation Completed Successfully")
 
-    # Show Weighted Average
-    st.markdown("### 🔹 Weighted Average (Weighted by class frequency)")
-    weighted_df = report_df.loc[["weighted avg"], ["precision", "recall", "f1-score"]]
-    st.dataframe(weighted_df.round(4), use_container_width=True)
-
-    st.success("✅ Evaluation Completed Successfully")
 
 # =========================================================
 # TAB 2 — DATASET INFORMATION
