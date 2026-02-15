@@ -137,7 +137,7 @@ and testing subsets before model deployment.
 # =========================================================
 st.markdown("### ⬇️ Download Test Dataset")
 
-GITHUB_TEST_DATA_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/test_dataset.csv"
+GITHUB_TEST_DATA_URL = "https://github.com/deepakkumar-gridindia/ML_FireWall_Logs_Classification_IDS/blob/main/test_dataset.csv"
 
 st.markdown("""
 Click below to download the prepared test dataset.  
