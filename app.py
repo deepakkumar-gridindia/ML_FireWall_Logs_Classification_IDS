@@ -253,9 +253,12 @@ if uploaded_file is not None:
     # =====================================================
     # CLASSIFICATION REPORT
     # =====================================================
+    # =====================================================
+    # CLASSIFICATION REPORT (SEPARATED VIEW)
+    # =====================================================
     st.markdown(f"## 📄 Classification Report – {selected_model_name}")
     
-    # Generate classification report dictionary
+    # Generate report dictionary
     report_dict = classification_report(
         y_true,
         y_pred,
@@ -263,22 +266,46 @@ if uploaded_file is not None:
         zero_division=0
     )
     
-    # Convert to DataFrame
     report_df = pd.DataFrame(report_dict).transpose()
     
-    # Replace numeric class labels (0,1,2,3) with original names
+    # Replace numeric labels with actual class names
     class_mapping = {str(i): label for i, label in enumerate(label_encoder.classes_)}
     report_df.rename(index=class_mapping, inplace=True)
     
-    # Reorder columns for better display
-    desired_columns = ["precision", "recall", "f1-score", "support"]
-    report_df = report_df[desired_columns]
+    # -------------------------------
+    # 1️⃣ Class-wise Metrics
+    # -------------------------------
+    st.markdown("### 🔹 Class-wise Performance")
     
-    # Round values
-    report_df = report_df.round(4)
+    class_rows = label_encoder.classes_
+    class_df = report_df.loc[class_rows, ["precision", "recall", "f1-score", "support"]]
     
-    # Display in Streamlit
-    st.dataframe(report_df, use_container_width=True)
+    st.dataframe(class_df.round(4), use_container_width=True)
+    
+    # -------------------------------
+    # 2️⃣ Accuracy
+    # -------------------------------
+    st.markdown("### 🔹 Overall Accuracy")
+    
+    accuracy_value = report_df.loc["accuracy", "precision"] if "accuracy" in report_df.index else report_dict["accuracy"]
+    st.metric("Accuracy", f"{accuracy_score(y_true, y_pred):.4f}")
+    
+    # -------------------------------
+    # 3️⃣ Macro Average
+    # -------------------------------
+    st.markdown("### 🔹 Macro Average (Equal weight to all classes)")
+    
+    macro_df = report_df.loc[["macro avg"], ["precision", "recall", "f1-score"]]
+    st.dataframe(macro_df.round(4), use_container_width=True)
+    
+    # -------------------------------
+    # 4️⃣ Weighted Average
+    # -------------------------------
+    st.markdown("### 🔹 Weighted Average (Weighted by class frequency)")
+    
+    weighted_df = report_df.loc[["weighted avg"], ["precision", "recall", "f1-score"]]
+    st.dataframe(weighted_df.round(4), use_container_width=True)
+
 
 
     st.success("✅ Evaluation Completed Successfully")
