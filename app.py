@@ -85,9 +85,22 @@ if page == "🏠 Home":
     # -------------------------------
     # Upload Section
     # -------------------------------
+    # -------------------------------
+    # Upload Section
+    # -------------------------------
     st.markdown("### 📤 Upload Test Dataset")
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
-
+    
+    # If new file uploaded → store it
+    if uploaded_file is not None:
+        test_data = pd.read_csv(uploaded_file)
+    
+        if "Action" not in test_data.columns:
+            st.error("Dataset must contain 'Action' column.")
+            st.stop()
+    
+        st.session_state["test_data"] = test_data
+    
     # -------------------------------
     # Model Selection
     # -------------------------------
@@ -96,58 +109,49 @@ if page == "🏠 Home":
         "Choose a Model",
         list(model_files.keys())
     )
-
-    model = joblib.load(model_files[selected_model_name])
-
+    
     # =====================================================
-    # 1️⃣ IF NEW FILE IS UPLOADED → RUN MODEL & STORE RESULTS
+    # IF DATA EXISTS → RUN MODEL AUTOMATICALLY
     # =====================================================
-    if uploaded_file is not None:
-
-        test_data = pd.read_csv(uploaded_file)
-
-        if "Action" not in test_data.columns:
-            st.error("Dataset must contain 'Action' column.")
-            st.stop()
-
+    if "test_data" in st.session_state:
+    
+        test_data = st.session_state["test_data"]
+    
         y_true = test_data["Action"]
         X_test = test_data.drop(columns=["Action"])
-
+    
+        model = joblib.load(model_files[selected_model_name])
+    
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)
-
-        # ✅ Store everything in session_state
-        st.session_state["test_data"] = test_data
+    
+        # Store latest results
         st.session_state["y_true"] = y_true
         st.session_state["y_pred"] = y_pred
         st.session_state["y_prob"] = y_prob
         st.session_state["selected_model"] = selected_model_name
-
-    # =====================================================
-    # 2️⃣ IF RESULTS ALREADY EXIST → DISPLAY THEM
-    # =====================================================
-    if "y_true" in st.session_state:
-
-        y_true = st.session_state["y_true"]
-        y_pred = st.session_state["y_pred"]
-        y_prob = st.session_state["y_prob"]
-        selected_model_name = st.session_state["selected_model"]
-
+    
         # -------------------------------
         # Evaluation Metrics
         # -------------------------------
         st.markdown(f"## 📊 Evaluation Metrics – {selected_model_name}")
-
+    
         col1, col2, col3 = st.columns(3)
-
+    
         col1.metric("Accuracy", f"{accuracy_score(y_true, y_pred):.4f}")
         col1.metric("Precision", f"{precision_score(y_true, y_pred, average='weighted'):.4f}")
-
+    
         col2.metric("Recall", f"{recall_score(y_true, y_pred, average='weighted'):.4f}")
         col2.metric("F1 Score", f"{f1_score(y_true, y_pred, average='weighted'):.4f}")
-
+    
         col3.metric("AUC", f"{roc_auc_score(y_true, y_prob, multi_class='ovr', average='weighted'):.4f}")
         col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
+    
+        st.success("✅ Results Update Automatically When Model Changes")
+    
+    else:
+        st.info("Upload a dataset to begin evaluation.")
+
 
         # -------------------------------
         # Confusion Matrix
