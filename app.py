@@ -220,38 +220,24 @@ elif page == "📈 ROC Curve":
 
     st.markdown("## 📈 ROC Curve Analysis (One-vs-Rest)")
 
-    if "test_data" not in st.session_state:
+    if "y_true" not in st.session_state:
         st.warning("⚠️ Please upload dataset in Home tab first.")
         st.stop()
 
-    test_data = st.session_state["test_data"]
-
-    y_true_raw = test_data["Action"]
-    X_test = test_data.drop(columns=["Action"])
-
-    # Encode y_true properly
-    y_true = label_encoder.transform(y_true_raw)
+    y_true = st.session_state["y_true"]
+    y_prob = st.session_state["y_prob"]
+    selected_model_name = st.session_state["selected_model"]
 
     from sklearn.preprocessing import label_binarize
     import numpy as np
 
     classes = np.arange(len(label_encoder.classes_))
 
-    # Binarize target for multiclass ROC
+    # Binarize stored encoded labels
     y_true_bin = label_binarize(y_true, classes=classes)
 
-    # Let user choose model
-    selected_model_name = st.selectbox(
-        "Select Model for ROC Curve",
-        list(model_files.keys())
-    )
+    fig, ax = plt.subplots(figsize=(6,4))
 
-    model = joblib.load(model_files[selected_model_name])
-    y_prob = model.predict_proba(X_test)
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-
-    # Plot ROC for each class
     for i in range(len(classes)):
         fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_prob[:, i])
         auc_score = roc_auc_score(y_true_bin[:, i], y_prob[:, i])
@@ -262,17 +248,16 @@ elif page == "📈 ROC Curve":
             label=f"{label_encoder.classes_[i]} (AUC={auc_score:.3f})"
         )
 
-    # Random baseline
-    ax.plot([0, 1], [0, 1], 'k--', linewidth=1)
+    ax.plot([0,1],[0,1],'k--', linewidth=1)
 
     ax.set_xlabel("False Positive Rate")
     ax.set_ylabel("True Positive Rate")
     ax.set_title(f"ROC Curve - {selected_model_name}")
 
-    # Move legend outside for clean look
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=8)
 
     st.pyplot(fig)
+
 
 
 
