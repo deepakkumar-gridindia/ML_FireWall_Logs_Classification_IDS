@@ -254,16 +254,31 @@ if uploaded_file is not None:
     # CLASSIFICATION REPORT
     # =====================================================
     st.markdown(f"## 📄 Classification Report – {selected_model_name}")
+    
+    # Generate classification report dictionary
+    report_dict = classification_report(
+        y_true,
+        y_pred,
+        output_dict=True,
+        zero_division=0
+    )
+    
+    # Convert to DataFrame
+    report_df = pd.DataFrame(report_dict).transpose()
+    
+    # Replace numeric class labels (0,1,2,3) with original names
+    class_mapping = {str(i): label for i, label in enumerate(label_encoder.classes_)}
+    report_df.rename(index=class_mapping, inplace=True)
+    
+    # Reorder columns for better display
+    desired_columns = ["precision", "recall", "f1-score", "support"]
+    report_df = report_df[desired_columns]
+    
+    # Round values
+    report_df = report_df.round(4)
+    
+    # Display in Streamlit
+    st.dataframe(report_df, use_container_width=True)
 
-    report_df = pd.DataFrame(
-        classification_report(
-            y_true,
-            y_pred,
-            output_dict=True,
-            zero_division=0
-        )
-    ).transpose()
-
-    st.dataframe(report_df.round(4))
 
     st.success("✅ Evaluation Completed Successfully")
