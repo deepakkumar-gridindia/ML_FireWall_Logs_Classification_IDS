@@ -257,17 +257,63 @@ if uploaded_file is not None:
     # =====================================================
     # CLASSIFICATION REPORT
     # =====================================================
+    # st.markdown(f"## 📄 Classification Report – {selected_model_name}")
+
+    # report_df = pd.DataFrame(
+    #     classification_report(
+    #         y_true,
+    #         y_pred,
+    #         output_dict=True,
+    #         zero_division=0
+    #     )
+    # ).transpose()
+
+    # st.dataframe(report_df.round(4))
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
     st.markdown(f"## 📄 Classification Report – {selected_model_name}")
+    
+    report = classification_report(
+        y_true,
+        y_pred,
+        output_dict=True,
+        zero_division=0
+    )
+    
+    report_df = pd.DataFrame(report).transpose()
+    
+    # Keep only main metrics (remove support & accuracy row)
+    metrics_to_plot = report_df.loc[
+        [label for label in report_df.index if label not in ["accuracy"]],
+        ["precision", "recall", "f1-score"]
+    ]
+    
+    fig, ax = plt.subplots()
+    
+    heatmap_data = metrics_to_plot.values
+    im = ax.imshow(heatmap_data)
+    
+    # Axis Labels
+    ax.set_xticks(np.arange(len(metrics_to_plot.columns)))
+    ax.set_yticks(np.arange(len(metrics_to_plot.index)))
+    ax.set_xticklabels(metrics_to_plot.columns)
+    ax.set_yticklabels(metrics_to_plot.index)
+    
+    # Rotate column headers
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
+    
+    # Annotate values
+    for i in range(len(metrics_to_plot.index)):
+        for j in range(len(metrics_to_plot.columns)):
+            ax.text(j, i, f"{heatmap_data[i, j]:.2f}",
+                    ha="center", va="center")
+    
+    ax.set_title("Classification Report Heatmap")
+    plt.colorbar(im)
+    
+    st.pyplot(fig)
 
-    report_df = pd.DataFrame(
-        classification_report(
-            y_true,
-            y_pred,
-            output_dict=True,
-            zero_division=0
-        )
-    ).transpose()
-
-    st.dataframe(report_df.round(4))
 
     st.success("✅ Evaluation Completed Successfully")
