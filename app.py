@@ -137,7 +137,9 @@ and testing subsets before model deployment.
 # =========================================================
 st.markdown("### ⬇️ Download Test Dataset")
 
-GITHUB_TEST_DATA_URL = "https://github.com/deepakkumar-gridindia/ML_FireWall_Logs_Classification_IDS/blob/main/test_dataset.csv"
+# GITHUB_TEST_DATA_URL = "https://github.com/deepakkumar-gridindia/ML_FireWall_Logs_Classification_IDS/blob/main/test_dataset.csv"
+GITHUB_TEST_DATA_URL = "https://raw.githubusercontent.com/deepakkumar-gridindia/ML_FireWall_Logs_Classification_IDS/main/test_dataset.csv"
+
 
 st.markdown("""
 Click below to download the prepared test dataset.  
@@ -200,7 +202,11 @@ model = joblib.load(model_files[selected_model_name])
 # =========================================================
 if uploaded_file is not None:
 
-    test_data = pd.read_csv(uploaded_file)
+    # test_data = pd.read_csv(uploaded_file)
+    try:
+        test_data = pd.read_csv(uploaded_file)
+    except Exception:
+        test_data = pd.read_csv(uploaded_file, engine="python")
 
     if "Action" not in test_data.columns:
         st.error("Dataset must contain 'Action' column for evaluation.")
