@@ -220,21 +220,34 @@ elif page == "📈 ROC Curve":
 
     st.markdown("## 📈 ROC Curve Analysis (One-vs-Rest)")
 
-    if "y_true" not in st.session_state:
+    # Check if dataset exists
+    if "test_data" not in st.session_state:
         st.warning("⚠️ Please upload dataset in Home tab first.")
         st.stop()
 
-    y_true = st.session_state["y_true"]
-    y_prob = st.session_state["y_prob"]
-    selected_model_name = st.session_state["selected_model"]
+    test_data = st.session_state["test_data"]
+
+    y_true_raw = test_data["Action"]
+    X_test = test_data.drop(columns=["Action"])
+
+    # Encode labels properly
+    y_true = label_encoder.transform(y_true_raw)
 
     from sklearn.preprocessing import label_binarize
     import numpy as np
 
     classes = np.arange(len(label_encoder.classes_))
-
-    # Binarize stored encoded labels
     y_true_bin = label_binarize(y_true, classes=classes)
+
+    # 🔹 Independent model selection dropdown
+    selected_model_name = st.selectbox(
+        "Select Model for ROC Curve",
+        list(model_files.keys()),
+        key="roc_model_selector"
+    )
+
+    model = joblib.load(model_files[selected_model_name])
+    y_prob = model.predict_proba(X_test)
 
     fig, ax = plt.subplots(figsize=(6,4))
 
