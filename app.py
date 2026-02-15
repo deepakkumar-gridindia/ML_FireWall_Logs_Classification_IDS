@@ -201,41 +201,48 @@ elif page == "📊 Model Comparison":
 # =========================================================
 elif page == "📈 ROC Curve":
 
-    st.markdown("## 📈 ROC Curve Analysis")
+    st.markdown("## 📈 ROC Curve Analysis (One-vs-Rest)")
 
     if "test_data" not in st.session_state:
         st.warning("⚠️ Please upload dataset in Home tab first.")
         st.stop()
 
     test_data = st.session_state["test_data"]
-
     y_true = test_data["Action"]
     X_test = test_data.drop(columns=["Action"])
 
     from sklearn.preprocessing import label_binarize
     import numpy as np
 
+    # Let user choose model
+    selected_model_name = st.selectbox(
+        "Select Model for ROC Curve",
+        list(model_files.keys())
+    )
+
+    model = joblib.load(model_files[selected_model_name])
+    y_prob = model.predict_proba(X_test)
+
     classes = label_encoder.classes_
     y_true_bin = label_binarize(y_true, classes=classes)
 
     fig, ax = plt.subplots(figsize=(6,4))
 
-    for model_name, file_name in model_files.items():
-
-        model = joblib.load(file_name)
-        y_prob = model.predict_proba(X_test)
-
-        for i in range(len(classes)):
-            fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_prob[:, i])
-            ax.plot(fpr, tpr, label=f"{model_name} - {classes[i]}")
+    for i in range(len(classes)):
+        fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_prob[:, i])
+        ax.plot(fpr, tpr, label=classes[i])
 
     ax.plot([0,1],[0,1],'k--')
+
     ax.set_xlabel("False Positive Rate")
     ax.set_ylabel("True Positive Rate")
-    ax.set_title("Multiclass ROC Curve (One-vs-Rest)")
-    ax.legend(fontsize=6)
+    ax.set_title(f"ROC Curve - {selected_model_name}")
+
+    # Move legend outside
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=8)
 
     st.pyplot(fig)
+
 
 
 # =========================================================
