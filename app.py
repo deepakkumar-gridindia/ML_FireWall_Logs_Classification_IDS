@@ -148,12 +148,8 @@ if page == "🏠 Home":
         col3.metric("MCC", f"{matthews_corrcoef(y_true, y_pred):.4f}")
     
         st.success("✅ Results Update Automatically When Model Changes")
-    
-    else:
-        st.info("Upload a dataset to begin evaluation.")
 
-
-        # -------------------------------
+            # -------------------------------
         # Confusion Matrix
         # -------------------------------
         st.markdown(f"## 🔢 Confusion Matrix – {selected_model_name}")
@@ -192,6 +188,12 @@ if page == "🏠 Home":
 
 
         st.success("✅ Evaluation Completed Successfully")
+    
+    else:
+        st.info("Upload a dataset to begin evaluation.")
+
+
+
 
 # =========================================================
 # MODEL COMPARISON PAGE
